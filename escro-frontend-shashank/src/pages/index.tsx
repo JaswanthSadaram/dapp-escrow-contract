@@ -4,6 +4,17 @@ import { useWallet } from '@meshsdk/react';
 import { CardanoWallet, MeshProvider } from '@meshsdk/react';
 import { Transaction, resolveScriptHash } from '@meshsdk/core';
 import Link from 'next/link';
+import { 
+  EscrowDatum, 
+  TRANSACTION_CATEGORIES, 
+  formatADA, 
+  adaToLovelace 
+} from '../utils/escrow';
+import { 
+  categorizeTransaction, 
+  getCategoryEmoji, 
+  getCategoryColor 
+} from '../utils/ai';
 
 const Home: NextPage = () => {
   const { connected, wallet } = useWallet();
@@ -23,6 +34,13 @@ const Home: NextPage = () => {
   const [sentMessage, setSentMessage] = useState<string>(""); // Store sent message for success display
   const [balance, setBalance] = useState<string>("0");
   const [balanceError, setBalanceError] = useState<string>("");
+  
+  // New escrow and AI states
+  const [selectedCategory, setSelectedCategory] = useState<string>("Other");
+  const [isAiCategorizing, setIsAiCategorizing] = useState<boolean>(false);
+  const [aiSuggestion, setAiSuggestion] = useState<string>("");
+  const [transactionHistory, setTransactionHistory] = useState<any[]>([]);
+  const [showEscrowMode, setShowEscrowMode] = useState<boolean>(false);
 
   async function getAssets() {
     if (wallet) {
@@ -77,6 +95,8 @@ const Home: NextPage = () => {
     status: 'success' | 'failed' | 'pending';
     errorMessage?: string;
     txHash?: string;
+    category?: string;
+    type?: string;
   }) => {
     try {
       const storedTransactions = localStorage.getItem('cardano_transactions');
@@ -107,6 +127,7 @@ const Home: NextPage = () => {
     if (connected && wallet) {
       console.log('Wallet connected, automatically fetching balance...');
       getAssets();
+      loadTransactionHistory();
     } else if (!connected) {
       // Reset states when wallet disconnects
       setAssets(null);
@@ -118,10 +139,45 @@ const Home: NextPage = () => {
       setRecipientAddress("");
       setSendAmount("");
       setSendMessage("");
+      setSelectedCategory("Other");
+      setAiSuggestion("");
+      setTransactionHistory([]);
     }
   }, [connected, wallet]);
 
-  async function sendAda() {
+  // Load transaction history from localStorage
+  const loadTransactionHistory = () => {
+    try {
+      const storedTransactions = localStorage.getItem('cardano_transactions');
+      if (storedTransactions) {
+        const transactions = JSON.parse(storedTransactions);
+        setTransactionHistory(transactions.slice(0, 10)); // Show last 10 transactions
+      }
+    } catch (error) {
+      console.error('Error loading transaction history:', error);
+    }
+  };
+
+  // Handle message change with AI categorization
+  const handleMessageChange = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const message = e.target.value;
+    setSendMessage(message);
+    
+    // Auto-categorize with AI if message is substantial
+    if (message.trim().length > 3 && !isAiCategorizing) {
+      setIsAiCategorizing(true);
+      setAiSuggestion("");
+      
+      try {
+        const suggestion = await categorizeTransaction(message.trim());
+        setAiSuggestion(suggestion);
+      } catch (error) {
+        console.error('AI categorization failed:', error);
+      } finally {
+        setIsAiCategorizing(false);
+      }
+    }
+  };  async function sendAda() {
     if (!wallet || !recipientAddress || !sendAmount) return;
     
     try {
@@ -157,25 +213,28 @@ const Home: NextPage = () => {
         throw new Error(`Insufficient balance. You have ${balanceInAda.toFixed(6)} ADA, but need at least ${minRequired.toFixed(6)} ADA (including ~2 ADA for fees)`);
       }
 
+      setSendStatus("Creating categorized transaction...");
+      
       // Convert ADA to Lovelace (1 ADA = 1,000,000 Lovelace)
       const amountInLovelace = (sendAmountNum * 1_000_000).toString();
 
       setSendStatus("Building transaction...");
       
-      // Build transaction with message metadata
+      // Build transaction with enhanced metadata
       const tx = new Transaction({ initiator: wallet });
       tx.sendLovelace(recipientAddress, amountInLovelace);
       
-      // Add message metadata if provided
-      if (sendMessage.trim()) {
-        const metadata = {
-          "674": {
-            "msg": [sendMessage.trim()]
-          }
-        };
-        tx.setMetadata(674, metadata[674]);
-        console.log('Adding metadata to transaction:', metadata);
-      }
+      // Add enhanced metadata with categorization
+      const metadata = {
+        "674": {
+          "msg": [sendMessage.trim() || 'Payment'],
+          "category": selectedCategory,
+          "timestamp": Math.floor(Date.now() / 1000),
+          "type": showEscrowMode ? "escrow" : "direct_transfer"
+        }
+      };
+      tx.setMetadata(674, metadata[674]);
+      console.log('Adding categorized metadata to transaction:', metadata);
 
       const unsignedTx = await tx.build();
       
@@ -186,28 +245,38 @@ const Home: NextPage = () => {
       const txHash = await wallet.submitTx(signedTx);
       
       setTxHash(txHash);
-      setSentMessage(sendMessage); // Store the sent message for display
+      setSentMessage(sendMessage);
       setSendStatus("success");
       
-      // Save successful transaction to localStorage
+      // Save successful transaction with category
       saveTransaction({
         amount: sendAmount,
         recipient: recipientAddress,
         message: sendMessage || undefined,
         status: 'success',
-        txHash: txHash
+        txHash: txHash,
+        category: selectedCategory,
+        type: showEscrowMode ? 'escrow' : 'direct'
       });
       
-      // Clear form
-      setRecipientAddress("");
-      setSendAmount("");
-      setSendMessage("");
+      // Refresh balance after successful transaction
+      setTimeout(() => {
+        getAssets();
+        loadTransactionHistory();
+      }, 3000);
       
-      // Refresh assets after successful transaction
-      setTimeout(() => getAssets(), 2000);
+      // Reset form after success
+      setTimeout(() => {
+        setRecipientAddress("");
+        setSendAmount("");
+        setSendMessage("");
+        setSelectedCategory("Other");
+        setAiSuggestion("");
+      }, 5000);
       
     } catch (error) {
-      console.error('Transaction failed:', error);
+      console.error('Send ADA error:', error);
+      setSendStatus("error");
       
       // Provide more specific error messages
       let errorMessage = 'Transaction failed';
@@ -224,16 +293,16 @@ const Home: NextPage = () => {
         }
       }
       
-      setSendStatus(`Error: ${errorMessage}`);
-      
       // Save failed transaction to localStorage
       saveTransaction({
         amount: sendAmount,
         recipient: recipientAddress,
         message: sendMessage || undefined,
         status: 'failed',
-        errorMessage: errorMessage
+        errorMessage: errorMessage,
+        category: selectedCategory
       });
+      
     } finally {
       setSendLoading(false);
     }
@@ -547,7 +616,7 @@ const Home: NextPage = () => {
                     </label>
                     <textarea
                       value={sendMessage}
-                      onChange={(e) => setSendMessage(e.target.value)}
+                      onChange={handleMessageChange}
                       placeholder="Add a note or message to this transaction..."
                       maxLength={64}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-transparent transition-all duration-300 bg-white/80 text-gray-700 font-light resize-none"
@@ -560,6 +629,74 @@ const Home: NextPage = () => {
                       <p className="text-xs text-gray-400">
                         {sendMessage.length}/64
                       </p>
+                    </div>
+                  </div>
+
+                  {/* Category Selection with AI Suggestions */}
+                  <div>
+                    <label className="block text-sm font-light text-gray-600 mb-2">
+                      Transaction Category
+                    </label>
+                    <div className="space-y-3">
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-transparent transition-all duration-300 bg-white/80 text-gray-700 font-light"
+                      >
+                        {TRANSACTION_CATEGORIES.map((category) => (
+                          <option key={category} value={category}>
+                            {getCategoryEmoji(category)} {category}
+                          </option>
+                        ))}
+                      </select>
+                      
+                      {/* AI Suggestion Display */}
+                      {aiSuggestion && aiSuggestion !== selectedCategory && (
+                        <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-blue-600">🤖</span>
+                            <span className="text-sm text-blue-700">
+                              AI suggests: <strong>{getCategoryEmoji(aiSuggestion)} {aiSuggestion}</strong>
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setSelectedCategory(aiSuggestion)}
+                            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg transition-colors duration-200"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Category Preview */}
+                      {selectedCategory && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <span 
+                            className={`inline-block w-3 h-3 rounded-full ${getCategoryColor(selectedCategory)}`}
+                          ></span>
+                          <span>This transaction will be categorized as {selectedCategory}</span>
+                        </div>
+                      )}
+                      
+                      {/* Escrow Mode Toggle */}
+                      <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">Escrow Mode</span>
+                          <p className="text-xs text-gray-500">Enhanced transaction with metadata</p>
+                        </div>
+                        <button
+                          onClick={() => setShowEscrowMode(!showEscrowMode)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                            showEscrowMode ? 'bg-blue-600' : 'bg-gray-300'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                              showEscrowMode ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -663,6 +800,78 @@ const Home: NextPage = () => {
                   )}
                 </div>
               </div>
+
+              {/* Transaction History */}
+              {transactionHistory.length > 0 && (
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-200/50 mt-8">
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-light text-gray-800 mb-2">Transaction History</h3>
+                    <div className="w-12 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mx-auto mb-4"></div>
+                  </div>
+                  
+                  <div className="space-y-4 max-w-2xl mx-auto">
+                    {transactionHistory.slice(0, 5).map((tx, index) => (
+                      <div key={tx.id || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            tx.status === 'success' ? 'bg-green-500' : 
+                            tx.status === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
+                          }`}></div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium text-gray-800">{tx.amount} ADA</span>
+                              {tx.category && (
+                                <span className="text-sm text-gray-600">
+                                  {getCategoryEmoji(tx.category)} {tx.category}
+                                </span>
+                              )}
+                              {tx.type === 'escrow' && (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                                  Escrow
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              to {tx.recipient.slice(0, 12)}...{tx.recipient.slice(-8)}
+                            </p>
+                            {tx.message && (
+                              <p className="text-xs text-gray-500 italic mt-1">"{tx.message}"</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">
+                            {new Date(tx.timestamp).toLocaleDateString()}
+                          </p>
+                          {tx.txHash && (
+                            <a 
+                              href={network === 'preprod' 
+                                ? `https://preprod.cardanoscan.io/transaction/${tx.txHash}`
+                                : `https://cardanoscan.io/transaction/${tx.txHash}`
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:text-blue-800 underline"
+                            >
+                              View
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {transactionHistory.length > 5 && (
+                      <div className="text-center">
+                        <Link href="/dashboard">
+                          <span className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer">
+                            View all {transactionHistory.length} transactions →
+                          </span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
             </>
           )}

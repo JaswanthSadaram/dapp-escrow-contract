@@ -1,0 +1,246 @@
+.homeContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.transactionForm {
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.transactionForm h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Wallet Connection Styles */
+.walletSection {
+  margin-bottom: 30px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.walletConnect {
+  text-align: center;
+}
+
+.walletConnect h3 {
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.walletConnect p {
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.connectButton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.connectButton:hover {
+  background-color: #218838;
+}
+
+.connectButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.walletConnected {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.walletConnected h3 {
+  color: #155724;
+  margin-bottom: 10px;
+}
+
+.walletConnected p {
+  color: #155724;
+  margin-bottom: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.disconnectButton {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.disconnectButton:hover {
+  background-color: #c82333;
+}
+
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+.inputField {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.inputField:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.sendButton {
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.sendButton:hover {
+  background-color: #0056b3;
+}
+
+.sendButton:active {
+  transform: translateY(1px);
+}
+
+.sendButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Transaction Hash Display */
+.txHashDisplay {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  border-radius: 8px;
+}
+
+.txHashDisplay h3 {
+  color: #0c5460;
+  margin-bottom: 15px;
+}
+
+.txHash {
+  display: block;
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  word-break: break-all;
+  border: 1px solid #dee2e6;
+  margin-bottom: 15px;
+}
+
+.explorerLinks {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.explorerLink {
+  display: inline-block;
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.explorerLink:hover {
+  background-color: #0056b3;
+}
+
+.formDataDisplay {
+  margin-top: 30px;
+  padding: 15px;
+  background: #e9ecef;
+  border-radius: 5px;
+  border-left: 4px solid #007bff;
+}
+
+.formDataDisplay h3 {
+  margin-top: 0;
+  color: #495057;
+}
+
+.formDataDisplay pre {
+  background: white;
+  padding: 10px;
+  border-radius: 3px;
+  overflow-x: auto;
+  font-size: 14px;
+}
+
+/* Instructions */
+.instructions {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #17a2b8;
+}
+
+.instructions h3 {
+  color: #17a2b8;
+  margin-bottom: 15px;
+}
+
+.instructions ol {
+  color: #495057;
+  line-height: 1.6;
+}
+
+.instructions li {
+  margin-bottom: 8px;
+}
