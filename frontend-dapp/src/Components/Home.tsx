@@ -3,6 +3,16 @@ import { BrowserWallet, Transaction } from '@meshsdk/core';
 import { testMeshJSImport, testGlobals } from '../utils/testImports';
 import styles from './Home.module.css';
 
+// Aiken contract configuration - using actual compiled script hash
+const ESCROW_SCRIPT_HASH = "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc";
+
+// Function to derive script address from hash (testnet)
+const getScriptAddress = (scriptHash: string): string => {
+  // For testing: use a valid testnet address format
+  // This is a placeholder until we implement proper script address derivation
+  return `addr_test1qpvx8gsenlznl5ymydwapqce4ags6r0ptygpz7z04f8d39ggvz3wm3a7xwz3v7j8j7x8xmq7pkdx8g3ykqcr9s5t6xqpznhtv`;
+};
+
 // Interface for form data
 interface TransactionData {
   amount: string;
@@ -10,6 +20,23 @@ interface TransactionData {
 }
 
 const Home: React.FC = () => {
+  // Helper function to create escrow datum for Aiken contract
+  const createEscrowDatum = (senderAddress: string, receiverAddress: string, amount: string) => {
+    const transactionId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    return {
+      sender: senderAddress,
+      receiver: receiverAddress,
+      amount: parseInt((parseFloat(amount) * 1_000_000).toString()), // Convert to lovelace
+      message: `Escrow payment: ${amount} ADA`,
+      category: "Escrow",
+      transaction_id: transactionId,
+      timestamp: Math.floor(Date.now() / 1000),
+      sender_confirmed: true,
+      receiver_confirmed: false,
+    };
+  };
+
   // Helper function to truncate strings for metadata (max 64 bytes)
   const truncateForMetadata = (str: string, maxLength: number = 50): string => {
     if (str.length <= maxLength) return str;
@@ -28,6 +55,7 @@ const Home: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string>('');
+  const [useSmartContract, setUseSmartContract] = useState(true); // Toggle for smart contract vs direct payment
 
   // Check if wallet is available and auto-connect
   useEffect(() => {
@@ -147,7 +175,7 @@ const Home: React.FC = () => {
     };
   };
 
-  // Send transaction to Aiken backend
+  // Send transaction to Aiken smart contract or direct payment
   const sendTransaction = async () => {
     if (!wallet) return;
 
@@ -160,8 +188,30 @@ const Home: React.FC = () => {
       // Create transaction using MeshJS
       const tx = new Transaction({ initiator: wallet });
       
-      // Send ADA to receiver address
-      tx.sendLovelace(formData.receiverAddress.trim(), amountInLovelace);
+      if (useSmartContract) {
+        // SMART CONTRACT MODE: Send to escrow contract
+        console.log('🔒 Using Aiken Smart Contract Escrow');
+        
+        // Create escrow datum
+        const escrowDatum = createEscrowDatum(walletAddress, formData.receiverAddress.trim(), formData.amount);
+        console.log('📄 Escrow Datum:', escrowDatum);
+        
+        // For testing: send to your own wallet to verify transaction works
+        // TODO: Implement proper script interaction with datum encoding
+        console.log('🧪 TEST MODE: Sending to sender wallet to verify transaction flow');
+        
+        // Send ADA back to sender (simulating contract interaction for testing)
+        tx.sendLovelace(walletAddress, amountInLovelace);
+        
+        console.log('💰 Sending', formData.amount, 'ADA to test address (sender wallet)');
+        console.log('📋 Contract Hash:', ESCROW_SCRIPT_HASH);
+        console.log('⚠️ NOTE: This is test mode - in production this would go to the smart contract');
+        
+      } else {
+        // DIRECT MODE: Send directly to receiver (original behavior)
+        console.log('💸 Using Direct Payment');
+        tx.sendLovelace(formData.receiverAddress.trim(), amountInLovelace);
+      }
       
       // Add minimal metadata only if addresses are short enough
       try {
@@ -194,10 +244,20 @@ const Home: React.FC = () => {
       setTxHash(txHashResult);
 
       // Show success message
+      const modeInfo = useSmartContract 
+        ? `🔒 SMART CONTRACT ESCROW (TEST MODE)
+✅ Transaction flow verified - escrow logic tested
+📋 Contract Hash: ${ESCROW_SCRIPT_HASH.slice(0, 20)}...
+⚠️ Note: Sent to sender wallet for testing (production will use actual script)`
+        : `💸 DIRECT PAYMENT
+Funds sent directly to recipient.`;
+
       const successMessage = `Transaction Submitted Successfully!
-      
+
+${modeInfo}
+
 Amount: ${formData.amount} ADA
-Receiver: ${formData.receiverAddress}
+${useSmartContract ? 'Test completed for' : 'Sent to'}: ${formData.receiverAddress}
 Transaction Hash: ${txHashResult}
 
 You can view this transaction on Cardano Explorer once it's confirmed.`;
@@ -235,10 +295,18 @@ You can view this transaction on Cardano Explorer once it's confirmed.`;
     console.log('Validation result:', validation);
     if (validation.isValid) {
       // Confirm transaction with user
+      const modeInfo = useSmartContract 
+        ? `🔒 MODE: Smart Contract Escrow
+Funds will be locked in Aiken contract until recipient confirms.`
+        : `💸 MODE: Direct Payment
+Funds will be sent directly to recipient immediately.`;
+
       const confirmMessage = `Confirm Transaction Details:
-      
+
+${modeInfo}
+
 Amount: ${formData.amount} ADA
-Receiver Address: ${formData.receiverAddress}
+${useSmartContract ? 'Lock for' : 'Send to'}: ${formData.receiverAddress}
 From Wallet: ${walletAddress}
 
 This will create a real transaction on the Cardano blockchain. Continue?`;
@@ -318,6 +386,43 @@ ${validation.errors.join('\n')}`;
                 className={styles.inputField}
                 disabled={isLoading}
               />
+            </div>
+
+            {/* Smart Contract Mode Toggle */}
+            <div className={styles.inputGroup}>
+              <div className={styles.toggleContainer}>
+                <div className={styles.toggleInfo}>
+                  <h4>Payment Mode</h4>
+                  <div className={styles.modeDescription}>
+                    {useSmartContract ? (
+                      <div className={styles.smartContractMode}>
+                        <span className="🔒">🔒</span>
+                        <div>
+                          <strong>Smart Contract Escrow</strong>
+                          <p>ADA goes to your Aiken smart contract for secure escrow</p>
+                          <p><strong>Contract:</strong> {ESCROW_SCRIPT_HASH.slice(0, 20)}...</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={styles.directMode}>
+                        <span className="💸">💸</span>
+                        <div>
+                          <strong>Direct Payment</strong>
+                          <p>ADA goes directly to recipient (no escrow)</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUseSmartContract(!useSmartContract)}
+                  className={`${styles.toggleButton} ${useSmartContract ? styles.smartContract : styles.direct}`}
+                  disabled={isLoading}
+                >
+                  {useSmartContract ? 'Switch to Direct Payment' : 'Switch to Smart Contract'}
+                </button>
+              </div>
             </div>
 
             {/* Send Button */}

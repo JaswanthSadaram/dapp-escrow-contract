@@ -244,3 +244,88 @@
 .instructions li {
   margin-bottom: 8px;
 }
+
+/* Smart Contract Toggle Styles */
+.toggleContainer {
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.toggleInfo h4 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 18px;
+}
+
+.modeDescription {
+  margin-bottom: 15px;
+}
+
+.smartContractMode, .directMode {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 6px;
+  background-color: white;
+  border: 1px solid #dee2e6;
+}
+
+.smartContractMode {
+  border-color: #28a745;
+  background-color: #f8fff9;
+}
+
+.directMode {
+  border-color: #ffc107;
+  background-color: #fffbf0;
+}
+
+.smartContractMode div strong, .directMode div strong {
+  color: #495057;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.smartContractMode p, .directMode p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.toggleButton {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggleButton.smartContract {
+  background-color: #28a745;
+  color: white;
+}
+
+.toggleButton.smartContract:hover {
+  background-color: #218838;
+}
+
+.toggleButton.direct {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.toggleButton.direct:hover {
+  background-color: #e0a800;
+}
+
+.toggleButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
