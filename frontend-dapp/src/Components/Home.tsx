@@ -9,10 +9,13 @@ interface TransactionData {
   receiverAddress: string;
 }
 
-// Aiken contract configuration
-const ESCROW_SCRIPT_HASH = "e2f6b2374df355cee1a026b62530c0e02be09fd3dc6b6d013c33c22a"; // From your compiled Aiken contract
-
 const Home: React.FC = () => {
+  // Helper function to truncate strings for metadata (max 64 bytes)
+  const truncateForMetadata = (str: string, maxLength: number = 50): string => {
+    if (str.length <= maxLength) return str;
+    return str.slice(0, maxLength - 3) + "...";
+  };
+
   // Dictionary to store form values
   const [formData, setFormData] = useState<TransactionData>({
     amount: '',
@@ -160,18 +163,25 @@ const Home: React.FC = () => {
       // Send ADA to receiver address
       tx.sendLovelace(formData.receiverAddress.trim(), amountInLovelace);
       
-      // Add metadata for the escrow transaction
-      const metadata = {
-        "674": {
-          "msg": [`Escrow transaction: ${formData.amount} ADA`],
-          "sender": walletAddress,
-          "receiver": formData.receiverAddress.trim(),
-          "amount": formData.amount,
-          "timestamp": Math.floor(Date.now() / 1000),
-          "contract_hash": ESCROW_SCRIPT_HASH
-        }
-      };
-      tx.setMetadata(674, metadata[674]);
+      // Add minimal metadata only if addresses are short enough
+      try {
+        const senderShort = truncateForMetadata(walletAddress, 25);
+        const receiverShort = truncateForMetadata(formData.receiverAddress.trim(), 25);
+        
+        const metadata = {
+          "674": {
+            "msg": [`${formData.amount} ADA`],
+            "from": senderShort,
+            "to": receiverShort,
+            "ts": Math.floor(Date.now() / 1000)
+          }
+        };
+        tx.setMetadata(674, metadata[674]);
+        console.log('Metadata added:', metadata[674]);
+      } catch (metadataError) {
+        console.warn('Skipping metadata due to length constraints:', metadataError);
+        // Continue without metadata if there are issues
+      }
 
       // Build the transaction
       const unsignedTx = await tx.build();
@@ -222,7 +232,7 @@ You can view this transaction on Cardano Explorer once it's confirmed.`;
   // Handle send button click
   const handleSend = async () => {
     const validation = validateForm();
-
+    console.log('Validation result:', validation);
     if (validation.isValid) {
       // Confirm transaction with user
       const confirmMessage = `Confirm Transaction Details:
