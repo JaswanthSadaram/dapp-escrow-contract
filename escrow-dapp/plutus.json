@@ -1,0 +1,232 @@
+{
+  "preamble": {
+    "title": "smart-escrow/escrow-dapp",
+    "description": "Aiken contracts for project 'smart-escrow/escrow-dapp'",
+    "version": "0.0.0",
+    "plutusVersion": "v3",
+    "compiler": {
+      "name": "Aiken",
+      "version": "v1.1.19+e525483"
+    },
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "escrow.escrow.spend",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/escrow~1EscrowDatum"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/escrow~1EscrowRedeemer"
+        }
+      },
+      "compiledCode": "59026d01010029800aba2aba1aab9faab9eaab9dab9a48888896600264653001300700198039804000cdc3a400530070024888966002600460106ea800e26466453001159800980098059baa0028cc004c038c030dd500148c03cc040c0400064449464494660166ea801e4601e602060206020602060206020602060200032300f301030103010301030103010301000148888889660026010007159800998020059bae30153013375400f159800cc004c030c048dd5180098099baa007a50a51404519800980618091baa30023013375400f4a14a2808a2941011452820228acc004c03000e2b30013300400b375c602a60266ea801e33001300c30123754600260266ea801e942945011452820228992cc004cdc3a4008009159800998028061bae30013014375401119800980698099baa3003301437540114a14a280922941012456600266e1d20060048acc004c034c04cdd51801180a1baa0088acc004c034c04cdd51801980a1baa0088cc0040326eb8c004c050dd50044dd69803980a1baa008401914a08092294101245660026600a0186eb8c058c050dd5004466002019375c602c60286ea80226eb4c01cc050dd5004200c8a50404880910121180b180b800a02240448a504029300b375400f300e003488966002600800515980098079baa00a801c590104566002601000515980098079baa00a801c59010456600266e1d20040028acc004c03cdd5005400e2c80822b30013370e90030014566002601e6ea802a00716404115980099b874802000a2b3001300f37540150038b20208b201a4034806900d201a180618068009b8748000c024dd5001c590070c01c004c00cdd5003c52689b2b200201",
+      "hash": "e2f6b2374df355cee1a026b62530c0e02be09fd3dc6b6d013c33c22a"
+    },
+    {
+      "title": "escrow.escrow.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "compiledCode": "59026d01010029800aba2aba1aab9faab9eaab9dab9a48888896600264653001300700198039804000cdc3a400530070024888966002600460106ea800e26466453001159800980098059baa0028cc004c038c030dd500148c03cc040c0400064449464494660166ea801e4601e602060206020602060206020602060200032300f301030103010301030103010301000148888889660026010007159800998020059bae30153013375400f159800cc004c030c048dd5180098099baa007a50a51404519800980618091baa30023013375400f4a14a2808a2941011452820228acc004c03000e2b30013300400b375c602a60266ea801e33001300c30123754600260266ea801e942945011452820228992cc004cdc3a4008009159800998028061bae30013014375401119800980698099baa3003301437540114a14a280922941012456600266e1d20060048acc004c034c04cdd51801180a1baa0088acc004c034c04cdd51801980a1baa0088cc0040326eb8c004c050dd50044dd69803980a1baa008401914a08092294101245660026600a0186eb8c058c050dd5004466002019375c602c60286ea80226eb4c01cc050dd5004200c8a50404880910121180b180b800a02240448a504029300b375400f300e003488966002600800515980098079baa00a801c590104566002601000515980098079baa00a801c59010456600266e1d20040028acc004c03cdd5005400e2c80822b30013370e90030014566002601e6ea802a00716404115980099b874802000a2b3001300f37540150038b20208b201a4034806900d201a180618068009b8748000c024dd5001c590070c01c004c00cdd5003c52689b2b200201",
+      "hash": "e2f6b2374df355cee1a026b62530c0e02be09fd3dc6b6d013c33c22a"
+    },
+    {
+      "title": "placeholder.placeholder.mint",
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "58d001010029800aba2aba1aab9eaab9dab9a48888966002646465300130053754003300700398038012444b30013370e9000001c4c98dd7180518049baa0048acc004cdc3a400400713233226300b001300b300c0013009375400915980099b874801000e264c601460126ea80122b30013370e9003001c4c8cc898dd698058009805980600098049baa0048acc004cdc3a40100071326300a3009375400913233226375a60160026016601800260126ea8011007200e401c80390070c018c01c004c018004c00cdd5003452689b2b20021",
+      "hash": "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc"
+    },
+    {
+      "title": "placeholder.placeholder.spend",
+      "datum": {
+        "title": "_datum",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "58d001010029800aba2aba1aab9eaab9dab9a48888966002646465300130053754003300700398038012444b30013370e9000001c4c98dd7180518049baa0048acc004cdc3a400400713233226300b001300b300c0013009375400915980099b874801000e264c601460126ea80122b30013370e9003001c4c8cc898dd698058009805980600098049baa0048acc004cdc3a40100071326300a3009375400913233226375a60160026016601800260126ea8011007200e401c80390070c018c01c004c018004c00cdd5003452689b2b20021",
+      "hash": "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc"
+    },
+    {
+      "title": "placeholder.placeholder.withdraw",
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "58d001010029800aba2aba1aab9eaab9dab9a48888966002646465300130053754003300700398038012444b30013370e9000001c4c98dd7180518049baa0048acc004cdc3a400400713233226300b001300b300c0013009375400915980099b874801000e264c601460126ea80122b30013370e9003001c4c8cc898dd698058009805980600098049baa0048acc004cdc3a40100071326300a3009375400913233226375a60160026016601800260126ea8011007200e401c80390070c018c01c004c018004c00cdd5003452689b2b20021",
+      "hash": "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc"
+    },
+    {
+      "title": "placeholder.placeholder.publish",
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "58d001010029800aba2aba1aab9eaab9dab9a48888966002646465300130053754003300700398038012444b30013370e9000001c4c98dd7180518049baa0048acc004cdc3a400400713233226300b001300b300c0013009375400915980099b874801000e264c601460126ea80122b30013370e9003001c4c8cc898dd698058009805980600098049baa0048acc004cdc3a40100071326300a3009375400913233226375a60160026016601800260126ea8011007200e401c80390070c018c01c004c018004c00cdd5003452689b2b20021",
+      "hash": "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc"
+    },
+    {
+      "title": "placeholder.placeholder.vote",
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "58d001010029800aba2aba1aab9eaab9dab9a48888966002646465300130053754003300700398038012444b30013370e9000001c4c98dd7180518049baa0048acc004cdc3a400400713233226300b001300b300c0013009375400915980099b874801000e264c601460126ea80122b30013370e9003001c4c8cc898dd698058009805980600098049baa0048acc004cdc3a40100071326300a3009375400913233226375a60160026016601800260126ea8011007200e401c80390070c018c01c004c018004c00cdd5003452689b2b20021",
+      "hash": "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc"
+    },
+    {
+      "title": "placeholder.placeholder.propose",
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "compiledCode": "58d001010029800aba2aba1aab9eaab9dab9a48888966002646465300130053754003300700398038012444b30013370e9000001c4c98dd7180518049baa0048acc004cdc3a400400713233226300b001300b300c0013009375400915980099b874801000e264c601460126ea80122b30013370e9003001c4c8cc898dd698058009805980600098049baa0048acc004cdc3a40100071326300a3009375400913233226375a60160026016601800260126ea8011007200e401c80390070c018c01c004c018004c00cdd5003452689b2b20021",
+      "hash": "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc"
+    },
+    {
+      "title": "placeholder.placeholder.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "compiledCode": "58d001010029800aba2aba1aab9eaab9dab9a48888966002646465300130053754003300700398038012444b30013370e9000001c4c98dd7180518049baa0048acc004cdc3a400400713233226300b001300b300c0013009375400915980099b874801000e264c601460126ea80122b30013370e9003001c4c8cc898dd698058009805980600098049baa0048acc004cdc3a40100071326300a3009375400913233226375a60160026016601800260126ea8011007200e401c80390070c018c01c004c018004c00cdd5003452689b2b20021",
+      "hash": "f2388d136606a27c4a531d0040c3e12e07eb95cd5011793c160707dc"
+    }
+  ],
+  "definitions": {
+    "Bool": {
+      "title": "Bool",
+      "anyOf": [
+        {
+          "title": "False",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "True",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        }
+      ]
+    },
+    "ByteArray": {
+      "dataType": "bytes"
+    },
+    "Data": {
+      "title": "Data",
+      "description": "Any Plutus data."
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "escrow/EscrowDatum": {
+      "title": "EscrowDatum",
+      "anyOf": [
+        {
+          "title": "EscrowDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "sender",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "receiver",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "amount",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "message",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "category",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "transaction_id",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "timestamp",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "sender_confirmed",
+              "$ref": "#/definitions/Bool"
+            },
+            {
+              "title": "receiver_confirmed",
+              "$ref": "#/definitions/Bool"
+            }
+          ]
+        }
+      ]
+    },
+    "escrow/EscrowRedeemer": {
+      "title": "EscrowRedeemer",
+      "anyOf": [
+        {
+          "title": "InitiateTransfer",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "ConfirmSender",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        },
+        {
+          "title": "ConfirmReceiver",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        },
+        {
+          "title": "Release",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": []
+        },
+        {
+          "title": "Refund",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": []
+        }
+      ]
+    }
+  }
+}
